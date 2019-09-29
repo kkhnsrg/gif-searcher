@@ -2,6 +2,7 @@ package edu.kokhan.gifsearcher.ui.search
 
 import android.util.Log
 import edu.kokhan.gifsearcher.data.Data
+import edu.kokhan.gifsearcher.data.GifInfo
 import edu.kokhan.gifsearcher.network.GiphyService
 import edu.kokhan.gifsearcher.ui.base.CentralPresenter
 import io.reactivex.Observable
@@ -30,7 +31,13 @@ class SearchPresenter : CentralPresenter<SearchContract.View>(), SearchContract.
 
                 override fun onSuccess(data: List<Data>) {
                     view?.hideRetryButton()
-                    view?.fillTrendGifList(data.map { it.images.fixed_width.url })
+                    view?.fillTrendGifList(data.map {
+                        GifInfo(
+                            it.images.fixed_width.url,
+                            it.images.fixed_width.height,
+                            it.images.fixed_width.width
+                        )
+                    })
                 }
 
                 override fun onSubscribe(d: Disposable) {
@@ -55,7 +62,13 @@ class SearchPresenter : CentralPresenter<SearchContract.View>(), SearchContract.
             .subscribe(object : SingleObserver<List<Data>> {
 
                 override fun onSuccess(data: List<Data>) {
-                    val urls = data.map { it.images.fixed_width.url }
+                    val urls = data.map {
+                        GifInfo(
+                            it.images.fixed_width.url,
+                            it.images.fixed_width.height,
+                            it.images.fixed_width.width
+                        )
+                    }
                     if (urls.isEmpty()) {
                         view?.showMessage(EMPTY_RESULT_MESSAGE)
                     } else {

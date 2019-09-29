@@ -9,15 +9,19 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import edu.kokhan.gifsearcher.R
+import edu.kokhan.gifsearcher.data.GifInfo
 import kotlinx.android.synthetic.main.view_gif.view.*
+
 
 class GifRecyclerViewAdapter(
     private val context: Context,
-    var urls: List<String>
+    var gifs: List<GifInfo>
 ) : RecyclerView.Adapter<GifRecyclerViewAdapter.SpecialViewHolder>() {
 
+    private val IMAGE_SIZE = 2
+
     override fun getItemCount(): Int {
-        return urls.size
+        return gifs.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpecialViewHolder {
@@ -31,9 +35,10 @@ class GifRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: SpecialViewHolder, position: Int) {
+        holder.imgGif.layoutParams.height = gifs[position].height.toInt() * IMAGE_SIZE
+        holder.imgGif.layoutParams.width = gifs[position].width.toInt() * IMAGE_SIZE
         Glide.with(context)
-            .load(urls[position])
-            .override(500)
+            .load(gifs[position].url)
             .placeholder(R.drawable.wait)
             .error(R.drawable.wrong)
             .into(holder.imgGif)
