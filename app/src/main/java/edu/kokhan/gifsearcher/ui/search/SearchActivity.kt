@@ -1,16 +1,14 @@
 package edu.kokhan.gifsearcher.ui.search
 
-import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import edu.kokhan.gifsearcher.R
+import edu.kokhan.gifsearcher.data.GifInfo
 import edu.kokhan.gifsearcher.ui.search.adapter.GifRecyclerViewAdapter
 import edu.kokhan.gifsearcher.ui.search.adapter.SpaceItemDecoration
 import kotlinx.android.synthetic.main.activity_search.*
@@ -40,7 +38,7 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
         presenter.onLoadTrends()
     }
 
-    override fun fillTrendGifList(gifList: List<String>) {
+    override fun fillTrendGifList(gifList: List<GifInfo>) {
         setupAdapter(gifList)
         showGifList()
     }
@@ -51,8 +49,8 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
         supportActionBar?.show()
     }
 
-    override fun fillSearchGifList(gifList: List<String>) {
-        adapter.urls = gifList
+    override fun fillSearchGifList(gifList: List<GifInfo>) {
+        adapter.gifs = gifList
         adapter.notifyDataSetChanged()
     }
 
@@ -68,7 +66,7 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
         retryButton.visibility = View.GONE
     }
 
-    private fun setupAdapter(list: List<String>) {
+    private fun setupAdapter(list: List<GifInfo>) {
         adapter = GifRecyclerViewAdapter(this, list)
         recyclerView.layoutManager =
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
