@@ -11,7 +11,7 @@ object RetrofitAdapter {
 
     private var retrofit: Retrofit? = null
     private var gson: Gson? = null
-    private val BASE_URL = "http://api.giphy.com/v1/gifs/"
+    private const val BASE_URL = "http://api.giphy.com/v1/gifs/"
 
     val instance: Retrofit
         @Synchronized get() {

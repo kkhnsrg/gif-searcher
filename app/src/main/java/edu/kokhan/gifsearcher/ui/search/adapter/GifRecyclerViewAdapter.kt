@@ -18,7 +18,6 @@ class GifRecyclerViewAdapter(
     var gifs: List<GifInfo>
 ) : RecyclerView.Adapter<GifRecyclerViewAdapter.SpecialViewHolder>() {
 
-    private val IMAGE_SIZE = 2
     var query: String? = null
 
     override fun getItemCount(): Int {
@@ -36,16 +35,21 @@ class GifRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: SpecialViewHolder, position: Int) {
-        holder.imgGif.layoutParams.height = gifs[position].height.toInt() * IMAGE_SIZE
-        holder.imgGif.layoutParams.width = gifs[position].width.toInt() * IMAGE_SIZE
-        Glide.with(context)
-            .load(gifs[position].url)
-            .placeholder(R.drawable.wait)
-            .error(R.drawable.wrong)
-            .into(holder.imgGif)
+        holder.bind(gifs[position], context)
     }
 
     class SpecialViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val IMAGE_SIZE = 2
         val imgGif: ImageView = view.imageGif
+
+        fun bind(gif: GifInfo, context: Context) {
+            imgGif.layoutParams.height = gif.height.toInt() * IMAGE_SIZE
+            imgGif.layoutParams.width = gif.width.toInt() * IMAGE_SIZE
+            Glide.with(context)
+                .load(gif.url)
+                .placeholder(R.drawable.wait)
+                .error(R.drawable.wrong)
+                .into(imgGif)
+        }
     }
 }
