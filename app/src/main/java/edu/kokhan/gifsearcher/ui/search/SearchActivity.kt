@@ -14,20 +14,14 @@ import edu.kokhan.gifsearcher.ui.search.adapter.GifRecyclerViewAdapter
 import edu.kokhan.gifsearcher.ui.search.adapter.SpaceItemDecoration
 import kotlinx.android.synthetic.main.activity_search.*
 
+private const val STRAGGERED_GRID_MARGIN = 8
 
 class SearchActivity : AppCompatActivity(), SearchContract.View {
-    override fun addItemsToGifList(gifList: List<GifInfo>) {
-        adapter.gifs += gifList
-        adapter.notifyDataSetChanged()
-        loading = true
-    }
 
     private var loading = true
     private var visibleItemCount: Int = 0
     private var totalItemCount: Int = 0
     private var pastVisibleItems: Int = 0
-
-    private val STRAGGERED_GRID_MARGIN = 8
 
     private lateinit var presenter: SearchPresenter
     private lateinit var adapter: GifRecyclerViewAdapter
@@ -63,6 +57,7 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
     override fun fillSearchGifList(gifList: List<GifInfo>) {
         adapter.gifs = gifList
         adapter.notifyDataSetChanged()
+        recyclerView.smoothScrollToPosition(0)
     }
 
     override fun showMessage(message: String) {
@@ -120,10 +115,8 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
                     visibleItemCount = layoutManager.childCount
                     totalItemCount = layoutManager.itemCount
 
-
-                    var firstVisibleItems: IntArray? = null
-                    firstVisibleItems =
-                        layoutManager.findFirstVisibleItemPositions(firstVisibleItems)
+                    val firstVisibleItems =
+                        layoutManager.findFirstVisibleItemPositions(null)
                     if (firstVisibleItems != null && firstVisibleItems.isNotEmpty()) {
                         pastVisibleItems = firstVisibleItems[0]
                     }
@@ -137,6 +130,12 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
                 }
             }
         })
+    }
+
+    override fun addItemsToGifList(gifList: List<GifInfo>) {
+        adapter.gifs += gifList
+        adapter.notifyDataSetChanged()
+        loading = true
     }
 
 
