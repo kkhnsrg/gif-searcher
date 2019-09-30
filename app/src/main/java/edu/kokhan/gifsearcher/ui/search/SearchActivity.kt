@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import edu.kokhan.gifsearcher.R
 import edu.kokhan.gifsearcher.data.GifInfo
@@ -15,6 +16,16 @@ import kotlinx.android.synthetic.main.activity_search.*
 
 
 class SearchActivity : AppCompatActivity(), SearchContract.View {
+    override fun addItemsToGifList(gifList: List<GifInfo>) {
+        adapter.gifs += gifList
+        adapter.notifyDataSetChanged()
+        loading = true
+    }
+
+    private var loading = true
+    private var visibleItemCount: Int = 0
+    private var totalItemCount: Int = 0
+    private var pastVisibleItems: Int = 0
 
     private val STRAGGERED_GRID_MARGIN = 8
 
@@ -38,7 +49,7 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
         presenter.onLoadTrends()
     }
 
-    override fun fillTrendGifList(gifList: List<GifInfo>) {
+    override fun initTrendGifList(gifList: List<GifInfo>) {
         setupAdapter(gifList)
         showGifList()
     }
@@ -72,6 +83,7 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.addItemDecoration(SpaceItemDecoration(STRAGGERED_GRID_MARGIN))
         recyclerView.adapter = adapter
+        setUpLoadMoreListener()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -81,7 +93,10 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
         val searchView = menuItem.actionView as SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                if (query.isNotEmpty()) presenter.onLoadSearchResult(query)
+                if (query.isNotEmpty()) {
+                    adapter.query = query
+                    presenter.onLoadSearchResult(query)
+                }
                 return false
             }
 
@@ -91,5 +106,38 @@ class SearchActivity : AppCompatActivity(), SearchContract.View {
         })
         return super.onCreateOptionsMenu(menu)
     }
+
+    private fun setUpLoadMoreListener() {
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(
+                recyclerView: RecyclerView,
+                dx: Int, dy: Int
+            ) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                if (dy > 0) {
+                    val layoutManager = recyclerView.layoutManager as StaggeredGridLayoutManager
+                    visibleItemCount = layoutManager.childCount
+                    totalItemCount = layoutManager.itemCount
+
+
+                    var firstVisibleItems: IntArray? = null
+                    firstVisibleItems =
+                        layoutManager.findFirstVisibleItemPositions(firstVisibleItems)
+                    if (firstVisibleItems != null && firstVisibleItems.isNotEmpty()) {
+                        pastVisibleItems = firstVisibleItems[0]
+                    }
+
+                    if (loading) {
+                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+                            loading = false
+                            presenter.onLoadMore(adapter.query, totalItemCount)
+                        }
+                    }
+                }
+            }
+        })
+    }
+
 
 }

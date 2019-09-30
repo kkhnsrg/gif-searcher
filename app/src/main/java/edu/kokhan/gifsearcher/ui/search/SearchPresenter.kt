@@ -12,6 +12,9 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 class SearchPresenter : CentralPresenter<SearchContract.View>(), SearchContract.Presenter {
+    override fun onLoadMore(query: String?, offset: Int) {
+        if (query == null) onLoadTrends(offset) else onLoadSearchResult(query, offset)
+    }
 
     private val ERROR_MESSAGE = "Check your internet connection!"
     private val EMPTY_RESULT_MESSAGE = "No gifs for your query :("
@@ -20,9 +23,9 @@ class SearchPresenter : CentralPresenter<SearchContract.View>(), SearchContract.
         view?.init()
     }
 
-    override fun onLoadTrends() {
+    override fun onLoadTrends(offset: Int) {
         GiphyService
-            .getTrends()
+            .getTrends(offset)
             .flatMap { Observable.fromIterable(it.data) }
             .toList()
             .observeOn(AndroidSchedulers.mainThread())
@@ -30,14 +33,19 @@ class SearchPresenter : CentralPresenter<SearchContract.View>(), SearchContract.
             .subscribe(object : SingleObserver<List<Data>> {
 
                 override fun onSuccess(data: List<Data>) {
-                    view?.hideRetryButton()
-                    view?.fillTrendGifList(data.map {
+                    val gifs = data.map {
                         GifInfo(
                             it.images.fixed_width.url,
                             it.images.fixed_width.height,
                             it.images.fixed_width.width
                         )
-                    })
+                    }
+                    if (offset == 0) {
+                        view?.hideRetryButton()
+                        view?.initTrendGifList(gifs)
+                    } else {
+                        view?.addItemsToGifList(gifs)
+                    }
                 }
 
                 override fun onSubscribe(d: Disposable) {
@@ -46,15 +54,15 @@ class SearchPresenter : CentralPresenter<SearchContract.View>(), SearchContract.
 
                 override fun onError(e: Throwable) {
                     view?.showMessage(ERROR_MESSAGE)
-                    view?.showRetryButton()
+                    if (offset == 0) view?.showRetryButton()
                     Log.e(SearchPresenter::class.java.name, e.message ?: "Unknown error")
                 }
             })
     }
 
-    override fun onLoadSearchResult(query: String) {
+    override fun onLoadSearchResult(query: String, offset: Int) {
         GiphyService
-            .getSearchResult(query)
+            .getSearchResult(query, offset)
             .flatMap { Observable.fromIterable(it.data) }
             .toList()
             .observeOn(AndroidSchedulers.mainThread())
@@ -72,7 +80,9 @@ class SearchPresenter : CentralPresenter<SearchContract.View>(), SearchContract.
                     if (urls.isEmpty()) {
                         view?.showMessage(EMPTY_RESULT_MESSAGE)
                     } else {
-                        view?.fillSearchGifList(urls)
+                        if (offset == 0) view?.fillSearchGifList(urls) else view?.addItemsToGifList(
+                            urls
+                        )
                     }
                 }
 
