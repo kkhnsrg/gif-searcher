@@ -5,13 +5,15 @@ import io.reactivex.Observable
 
 object GiphyService {
 
-    fun getTrends(): Observable<DataObject> {
+    private const val STATIC_LIMIT = 50
+
+    fun getTrends(offset: Int): Observable<DataObject> {
         return NetworkUtils.giphyApiInstance
-            .getTrends()
+            .getTrends(STATIC_LIMIT, offset)
     }
 
-    fun getSearchResult(query: String): Observable<DataObject> {
+    fun getSearchResult(query: String, offset: Int): Observable<DataObject> {
         return NetworkUtils.giphyApiInstance
-            .getSearchResult(query)
+            .getSearchResult(query, STATIC_LIMIT, offset)
     }
 }

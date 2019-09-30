@@ -19,6 +19,7 @@ class GifRecyclerViewAdapter(
 ) : RecyclerView.Adapter<GifRecyclerViewAdapter.SpecialViewHolder>() {
 
     private val IMAGE_SIZE = 2
+    var query: String? = null
 
     override fun getItemCount(): Int {
         return gifs.size

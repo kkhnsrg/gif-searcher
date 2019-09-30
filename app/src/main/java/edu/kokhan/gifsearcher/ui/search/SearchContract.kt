@@ -7,15 +7,17 @@ interface SearchContract : BaseContract {
 
     interface View : BaseContract.BaseView {
         fun init()
-        fun fillTrendGifList(gifList: List<GifInfo>)
+        fun initTrendGifList(gifList: List<GifInfo>)
         fun fillSearchGifList(gifList: List<GifInfo>)
+        fun addItemsToGifList(gifList: List<GifInfo>)
         fun showRetryButton()
         fun hideRetryButton()
     }
 
     interface Presenter : BaseContract.BasePresenter<View> {
         fun start()
-        fun onLoadTrends()
-        fun onLoadSearchResult(query: String)
+        fun onLoadTrends(offset: Int = 0)
+        fun onLoadSearchResult(query: String, offset: Int = 0)
+        fun onLoadMore(query: String?, offset: Int)
     }
 }

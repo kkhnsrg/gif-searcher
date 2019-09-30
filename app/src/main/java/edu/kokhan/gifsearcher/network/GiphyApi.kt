@@ -11,20 +11,18 @@ interface GiphyApi {
 
     @Headers(
         value = ["api_key: fws8qXsipc79cqR5SkBHdyvZZTsYGgBj",
-            "limit: 25",
             "raiting: G"]
     )
     @GET("trending")
-    fun getTrends(): Observable<DataObject>
+    fun getTrends(@Query("limit") limit: Int, @Query("offset") offset: Int): Observable<DataObject>
 
     @Headers(
         value = ["api_key: fws8qXsipc79cqR5SkBHdyvZZTsYGgBj",
-            "limit: 25",
-            "offset: 0",
             "raiting: G",
             "lang: en"]
     )
     @GET("search")
-    fun getSearchResult(@Query("q") query: String): Observable<DataObject>
+    fun getSearchResult(@Query("q") query: String, @Query("limit") limit: Int,
+                        @Query("offset") offset: Int): Observable<DataObject>
 
 }
